@@ -85,11 +85,11 @@ jobs:
 
       - name: Create multi arch manifests
         run: |
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.server_version }}-${{ github.ref_name }} \
+          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.agent_version }}-${{ github.ref_name }} \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
 
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.server_version }}-latest \
+          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.agent_version }}-latest \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
 
