@@ -38,7 +38,7 @@ jobs:
           push: false
           build-args: |
             OPENVOX_RELEASE=${{ matrix.release }}
-            OPENVOXAGENT_VERSION=${{ matrix.server_version }}
+            OPENVOXAGENT_VERSION=${{ matrix.agent_version }}
 
   tests:
     needs:
