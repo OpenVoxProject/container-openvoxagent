@@ -62,7 +62,7 @@ jobs:
           build_context: .
           buildfile: Containerfile
           tags: |
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-arm64
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64
 
   create-multi-arch-manifests:
     runs-on: ubuntu-latest
@@ -85,14 +85,14 @@ jobs:
 
       - name: Create multi arch manifests
         run: |
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxserver:${{ matrix.server_version }}-${{ github.ref_name }} \
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-x86_64
+          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.server_version }}-${{ github.ref_name }} \
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
 
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxserver:${{ matrix.server_version }}-latest \
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-x86_64
+          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.server_version }}-latest \
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
 
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxserver:latest \
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}-${{ github.sha }}-x86_64
+          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:latest \
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
