@@ -1,8 +1,0 @@
-{
-  "include": [
-    {
-      "release": 8,
-      "agent_version": "8.11.0"
-    }
-  ]
-}
