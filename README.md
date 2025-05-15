@@ -13,7 +13,10 @@
 
 This project hosts the Containerfile and the required scripts to build a OpenVox Agent container image.
 
-For compose file see: [CRAFTY](https://github.com/voxpupuli/crafty/tree/main/puppet/oss)
+⚠️ It is/can be used as an example/test agent (f.e. in CRAFTY).
+It is ***not*** intended to be used in production or as a replacement for the OpenVox agent package.
+
+For a compose file see: [CRAFTY](https://github.com/voxpupuli/crafty/tree/main/openvox/oss)
 
 The entrypoint is the `openvox-agent` script which is a wrapper around the `openvox-agent` binary.
 
