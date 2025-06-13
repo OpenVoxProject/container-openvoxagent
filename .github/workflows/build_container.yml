@@ -125,7 +125,6 @@ jobs:
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
 
           # on docker.io we use the voxpupuli namespace because new organizations are not free anymore
-          #
           docker buildx imagetools create -t docker.io/voxpupuli/openvoxagent:${{ steps.extract_version.outputs.version }}-${{ github.ref_name }} \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
