@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.0.0](https://github.com/openvoxproject/container-openvoxagent/tree/v1.0.0) (2025-08-15)
+## [v1.0.0](https://github.com/openvoxproject/container-openvoxagent/tree/v1.0.0) (2025-08-17)
 
 [Full Changelog](https://github.com/openvoxproject/container-openvoxagent/compare/52774c9304a436a1e4969f927b0dccdb19f06120...v1.0.0)
 
@@ -12,7 +12,12 @@ All notable changes to this project will be documented in this file.
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency openvox-agent to v8.19.2-1+ubuntu24.04 [\#19](https://github.com/OpenVoxProject/container-openvoxagent/pull/19) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency openvox-agent to v8.18.1-1+ubuntu24.04 [\#17](https://github.com/OpenVoxProject/container-openvoxagent/pull/17) ([renovate[bot]](https://github.com/apps/renovate))
 - docs: explain the container purpose [\#16](https://github.com/OpenVoxProject/container-openvoxagent/pull/16) ([rwaffen](https://github.com/rwaffen))
+- chore\(deps\): update dependency openvox-agent to v8.17.0-1+ubuntu24.04 [\#13](https://github.com/OpenVoxProject/container-openvoxagent/pull/13) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency openvox-agent to v8.16.0-1+ubuntu24.04 [\#12](https://github.com/OpenVoxProject/container-openvoxagent/pull/12) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency openvox-agent to v8.15.0-1+ubuntu24.04 [\#11](https://github.com/OpenVoxProject/container-openvoxagent/pull/11) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency openvox-agent to v8.14.0-1+ubuntu24.04 [\#6](https://github.com/OpenVoxProject/container-openvoxagent/pull/6) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency openvox-agent to v8.13.0-1+ubuntu24.04 [\#5](https://github.com/OpenVoxProject/container-openvoxagent/pull/5) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency openvox-agent to v8.12.1-1+ubuntu24.04 [\#4](https://github.com/OpenVoxProject/container-openvoxagent/pull/4) ([renovate[bot]](https://github.com/apps/renovate))
