@@ -2,4 +2,4 @@
 include:
   - release: 8
     # renovate: depName=openvox-agent openVoxRelease=8
-    agent_version: "8.23.1-1+ubuntu24.04"
+    agent_version: "8.24.0-1+ubuntu24.04"
