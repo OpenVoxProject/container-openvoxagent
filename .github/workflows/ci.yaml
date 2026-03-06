@@ -42,7 +42,7 @@ jobs:
             core.setOutput('version', version);
 
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           tags: 'ci/openvoxagent:${{ steps.extract_version.outputs.version }}'
           context: .
