@@ -7,7 +7,7 @@ ARG UBUNTU_VERSION=24.04
 ARG OPENVOXAGENT_VERSION=8.11.0-1+ubuntu${UBUNTU_VERSION}
 ARG OPENVOX_RELEASE_PACKAGE=openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb
 
-ADD https://apt.overlookinfratech.com/${OPENVOX_RELEASE_PACKAGE} /
+ADD https://apt.voxpupuli.org/${OPENVOX_RELEASE_PACKAGE} /
 RUN apt-get update && \
     apt-get install -y ca-certificates /${OPENVOX_RELEASE_PACKAGE} && \
     rm /${OPENVOX_RELEASE_PACKAGE}
