@@ -1,3 +1,4 @@
+---
 name: Build and publish a 🛢️ container
 
 on:
@@ -5,14 +6,22 @@ on:
     branches:
       - 'main'
     tags:
-      - '*'
+      - 'v*'
   workflow_dispatch:
+
+concurrency:
+  group: build-and-publish-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # minimal required permissions to clone repo
 
 jobs:
   setup-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      build_matrix: ${{ steps.set-build-matrix.outputs.build_matrix }}
+      tag_matrix: ${{ steps.set-tag-matrix.outputs.tag_matrix }}
     steps:
       - name: Source checkout
         uses: actions/checkout@v6
@@ -20,52 +29,36 @@ jobs:
       - name: 'Setup yq'
         uses: dcarbone/install-yq-action@v1.3.1
 
-      - id: set-matrix
-        run: echo "matrix=$(yq -o json build_versions.yaml | jq -c)" >> $GITHUB_OUTPUT
+      - id: set-build-matrix
+        run: echo "build_matrix=$(bash matrix.sh build)" >> $GITHUB_OUTPUT
 
-  build-X86-container:
-    runs-on: ubuntu-24.04
+      - id: set-tag-matrix
+        run: echo "tag_matrix=$(bash matrix.sh tag)" >> $GITHUB_OUTPUT
+
+  build-and-push-container:
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
     needs: setup-matrix
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.build_matrix) }}
     steps:
-      - name: Build OpenVox Server ${{ matrix.release }} container
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build ${{ matrix.platform }} container
         uses: voxpupuli/gha-build-and-publish-a-container@v2
         with:
           registry_password: ${{ secrets.GITHUB_TOKEN }}
           build_args: |
             OPENVOX_RELEASE=${{ matrix.release }}
             OPENVOXAGENT_VERSION=${{ matrix.agent_version }}
-          build_arch: linux/amd64
+          build_arch: linux/${{ matrix.platform }}
           build_context: .
           buildfile: Containerfile
-          tags: |
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-  build-ARM-container:
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      packages: write
-    needs: setup-matrix
-    strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
-    steps:
-      - name: Build OpenVox Server ${{ matrix.release }} container
-        uses: voxpupuli/gha-build-and-publish-a-container@v2
-        with:
-          registry_password: ${{ secrets.GITHUB_TOKEN }}
-          build_args: |
-            OPENVOX_RELEASE=${{ matrix.release }}
-            OPENVOXAGENT_VERSION=${{ matrix.agent_version }}
-          build_arch: linux/arm64
-          build_context: .
-          buildfile: Containerfile
-          tags: |
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64
+          # tag will look like: ghcr.io/openvoxproject/openvoxagent:8-<sha>-amd64
+          tags: ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-${{ matrix.platform }}
 
   create-multi-arch-manifests:
     runs-on: ubuntu-latest
@@ -74,10 +67,9 @@ jobs:
       packages: write
     needs:
       - setup-matrix
-      - build-X86-container
-      - build-ARM-container
+      - build-and-push-container
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.tag_matrix) }}
     steps:
       - name: Log in to the ghcr.io registry
         uses: docker/login-action@v4
@@ -93,57 +85,26 @@ jobs:
           username: voxpupulibot
           password: ${{ secrets.DOCKERHUB_BOT_ADMIN_TOKEN }}
 
-      - name: Extract version number
-        id: extract_version
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const agentVersion = '${{ matrix.agent_version }}';
-            const version = agentVersion.split('-')[0];
-            core.setOutput('version', version);
-
-      - name: Create multi arch manifests
+      - name: Create ref-specific multi-arch manifests
         run: |
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ steps.extract_version.outputs.version }}-${{ github.ref_name }} \
+          docker buildx imagetools create \
+            -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.agent_semver }}-${{ github.ref_name }} \
+            -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.agent_semver }} \
+            -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }} \
+            -t docker.io/voxpupuli/openvoxagent:${{ matrix.agent_semver }}-${{ github.ref_name }} \
+            -t docker.io/voxpupuli/openvoxagent:${{ matrix.agent_semver }} \
+            -t docker.io/voxpupuli/openvoxagent:${{ matrix.release }} \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-amd64
 
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ steps.extract_version.outputs.version }}-latest \
+      - name: Update floating multi-arch tags
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker buildx imagetools create \
+            -t ghcr.io/openvoxproject/openvoxagent:latest \
+            -t docker.io/voxpupuli/openvoxagent:latest \
             ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-latest \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }} \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxagent:latest \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          # on docker.io we use the voxpupuli namespace because new organizations are not free anymore
-          docker buildx imagetools create -t docker.io/voxpupuli/openvoxagent:${{ steps.extract_version.outputs.version }}-${{ github.ref_name }} \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t docker.io/voxpupuli/openvoxagent:${{ steps.extract_version.outputs.version }}-latest \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t docker.io/voxpupuli/openvoxagent:${{ matrix.release }}-latest \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t docker.io/voxpupuli/openvoxagent:${{ matrix.release }} \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
-
-          docker buildx imagetools create -t docker.io/voxpupuli/openvoxagent:latest \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-arm64 \
-            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-x86_64
+            ghcr.io/openvoxproject/openvoxagent:${{ matrix.release }}-${{ github.sha }}-amd64
 
   update-dockerhub-description:
     runs-on: ubuntu-latest
