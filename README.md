@@ -22,23 +22,25 @@ The entrypoint is the `openvox-agent` script which is a wrapper around the `open
 
 ## Version schema
 
-The version schema has the following layout:
+Images are published to `ghcr.io/openvoxproject/openvoxagent` and
+`docker.io/voxpupuli/openvoxagent`.
 
-```text
-<openvox.major>.<openvox.minor>.<openvox.patch>-v<container.major>.<container.minor>.<container.patch>
-```
+| Tag | Example | Description |
+| --- | --- | --- |
+| `<openvox.version>-v<container.version>` | `8.28.0-v1.2.3` | Immutable container release |
+| `<openvox.version>` | `8.28.0` | Latest build for an OpenVox Agent version |
+| `<openvox.major>` | `8` | Latest build for an OpenVox major version |
+| `latest` | `latest` | Latest build from the `main` branch |
 
-Example usage:
+Builds from the `main` branch are additionally tagged as
+`<openvox.version>-main`.
+
+Example using an immutable container release:
 
 ```shell
-podman pull ghcr.io/openvoxproject/openvoxagent:8.11.0-v1.2.3
+podman pull ghcr.io/openvoxproject/openvoxagent:8.28.0-v1.2.3
 ```
 
-| Name | Description |
-| --- | --- |
-| openvox.major | Describes the contained major OpenVox version (7 or 8) |
-| openvox.minor | Describes the contained minor OpenVox version |
-| openvox.patch | Describes the contained patchlevel OpenVox version |
-| container.major | Describes the major version of the base container (Ubunutu 24.04) or incompatible changes |
-| container.minor | Describes new features or refactoring with backward compatibility |
-| container.patch | Describes if minor changes or bugfixes have been implemented |
+The OpenVox version describes the agent version contained in the image. The
+container version follows semantic versioning and describes changes to the
+container image independently of the OpenVox version.
