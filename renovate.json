@@ -7,24 +7,15 @@
   "customManagers": [
     {
       "customType": "regex",
-      "datasourceTemplate": "rubygems",
-      "managerFilePatterns": [
-        "/build_versions.yaml/"
-      ],
-      "matchStrings": [
-        "rubygem_(?<depName>[a-z0-9_-]+):\\s+'(?<currentValue>\\d+\\.\\d+\\.\\d+)'"
-      ]
-    },
-    {
-      "customType": "regex",
       "datasourceTemplate": "deb",
       "managerFilePatterns": [
-        "/build_versions.yaml/"
+        "/(^|/)Containerfile$/",
+        "/(^|/)build_versions\\.yaml$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*depName=(?<depName>.*?)\\s*openVoxRelease=(?<openVoxRelease>\\d+)\\s*\\n\\s*(?<key>\\w+_version):\\s*\"(?<currentValue>.*?)\""
+        "#\\s*renovate:\\s*(?:datasource=deb\\s+)?depName=(?<depName>openvox-agent)\\s+openVoxRelease=(?<openVoxRelease>\\d+)\\s*\\n\\s*(?:ARG\\s+OPENVOXAGENT_VERSION=|agent_version:\\s*\")(?<currentValue>\\d+\\.\\d+\\.\\d+-\\d+\\+ubuntu26\\.04)"
       ],
-      "registryUrlTemplate": "https://apt.voxpupuli.org?suite=ubuntu24.04&components=openvox{{openVoxRelease}}&binaryArch=amd64"
+      "registryUrlTemplate": "https://apt.voxpupuli.org?suite=ubuntu26.04&components=openvox{{openVoxRelease}}&binaryArch=amd64"
     }
   ],
   "extends": [ "config:recommended", ":prImmediately" ],
