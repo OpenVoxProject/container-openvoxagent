@@ -1,0 +1,11 @@
+---
+.github/workflows/ci.yml:
+  matrix_command: bash matrix.sh build
+  matrix_requires_yq: true
+  build_job_name: 'Build ${{ matrix.platform }} CI container'
+  build_runner: '${{ matrix.runner }}'
+  image_tag: 'ci/openvoxagent:${{ matrix.agent_semver }}-${{ matrix.platform }}'
+  build_platforms: 'linux/${{ matrix.platform }}'
+  build_args:
+    - 'OPENVOX_RELEASE=${{ matrix.release }}'
+    - 'OPENVOXAGENT_VERSION=${{ matrix.agent_version }}'
