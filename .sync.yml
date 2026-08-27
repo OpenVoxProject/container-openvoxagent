@@ -8,6 +8,17 @@
   build_args:
     - 'OPENVOX_RELEASE=${{ matrix.release }}'
     - 'OPENVOXAGENT_VERSION=${{ matrix.agent_version }}'
+.github/renovate.jsonc:
+  renovate_custom_managers:
+    - customType: regex
+      datasourceTemplate: deb
+      managerFilePatterns:
+        - /(^|/)Containerfile$/
+        - /(^|/)build_versions\.yaml$/
+      matchStrings:
+        - >-
+          #\s*renovate:\s*(?:datasource=deb\s+)?depName=(?<depName>openvox-agent)\s+openVoxRelease=(?<openVoxRelease>\d+)\s*\n\s*(?:ARG\s+OPENVOXAGENT_VERSION=|agent_version:\s*")(?<currentValue>\d+\.\d+\.\d+-\d+\+ubuntu26\.04)
+      registryUrlTemplate: 'https://apt.voxpupuli.org?suite=ubuntu26.04&components=openvox{{openVoxRelease}}&binaryArch=amd64'
 .github/workflows/ci.yml:
   build_job_name: 'Build ${{ matrix.platform }} CI container'
 .github/workflows/security_scanning.yml:
