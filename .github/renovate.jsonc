@@ -1,0 +1,55 @@
+{
+  // Managed by modulesync - DO NOT EDIT
+  // https://voxpupuli.org/docs/updating-files-managed-with-modulesync/
+  //
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  // Apply shared labels so dependency updates are easy to filter in GitHub.
+  "addLabels": [
+    "dependencies",
+    "renovate"
+  ],
+  // Keep routine dependency updates low-touch for repos with CODEOWNERS.
+  "assigneesFromCodeOwners": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "datasourceTemplate": "deb",
+      "managerFilePatterns": [
+        "/(^|/)Containerfile$/",
+        "/(^|/)build_versions\\.yaml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*(?:datasource=deb\\s+)?depName=(?<depName>openvox-agent)\\s+openVoxRelease=(?<openVoxRelease>\\d+)\\s*\\n\\s*(?:ARG\\s+OPENVOXAGENT_VERSION=|agent_version:\\s*\")(?<currentValue>\\d+\\.\\d+\\.\\d+-\\d+\\+ubuntu26\\.04)"
+      ],
+      "registryUrlTemplate": "https://apt.voxpupuli.org?suite=ubuntu26.04&components=openvox{{openVoxRelease}}&binaryArch=amd64"
+    }
+  ],
+  // Use Renovate's normal defaults, but open PRs immediately instead of waiting.
+  "extends": [
+    "config:recommended",
+    ":prImmediately"
+  ],
+  // Mark vulnerability alerts separately from normal dependency updates.
+  "vulnerabilityAlerts": {
+    "addLabels": [
+      "security"
+    ],
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      // GitHub Actions are updated centrally in the ModuleSync configuration repository.
+      "enabled": false,
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      // Do not require dashboard approval before creating updates.
+      "dependencyDashboardApproval": false,
+      "matchPackageNames": [
+        "/.*/"
+      ]
+    }
+  ]
+}
